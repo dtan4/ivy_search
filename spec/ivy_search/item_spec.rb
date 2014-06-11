@@ -18,6 +18,10 @@ module IvySearch
       ["pop", "jazz"]
     end
 
+    let(:item) do
+      described_class.new(id: id, title: title, artist: artist, genres: genres)
+    end
+
     describe "#initialize" do
       subject(:item) do
         described_class.new(args)
@@ -40,6 +44,30 @@ module IvySearch
         end
 
         it { expect(item).to be_a described_class }
+      end
+    end
+
+    describe "#id" do
+      it "should return id" do
+        expect(item.id).to eq id
+      end
+    end
+
+    describe "#title" do
+      it "should return title" do
+        expect(item.title).to eq title
+      end
+    end
+
+    describe "#artist" do
+      it "should return artist" do
+        expect(item.artist).to eq artist
+      end
+    end
+
+    describe "#genres" do
+      it "should return genres" do
+        expect(item.genres).to match_array genres
       end
     end
   end
