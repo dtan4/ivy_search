@@ -68,16 +68,41 @@ module IvySearch
 
       context "when shop id is given" do
         let(:arg) do
-          2234
+          "2312"
         end
 
-        before do
-          stub_request(:get, "http://store.tsutaya.co.jp/item/rental_cd/#{id}.html?storeId=2234")
-            .to_return(status: 200, body: open(fixture_path("item_stock_notfound.html")).read)
+        context "and this item is available" do
+
+          before do
+            stub_request(:get, "http://store.tsutaya.co.jp/item/rental_cd/#{id}.html?storeId=#{arg}")
+              .to_return(status: 200, body: open(fixture_path("item_stock_available.html")).read)
+          end
+
+          it "should return 'o'" do
+            expect(subject).to eq "o"
+          end
         end
 
-        it "should return the stock status in specified shop exists" do
-          expect(subject).to eq "-"
+        context "and this item is on loan" do
+          before do
+            stub_request(:get, "http://store.tsutaya.co.jp/item/rental_cd/#{id}.html?storeId=#{arg}")
+              .to_return(status: 200, body: open(fixture_path("item_stock_onloan.html")).read)
+          end
+
+          it "should return 'x'" do
+            expect(subject).to eq "x"
+          end
+        end
+
+        context "and this item is unavailable" do
+          before do
+            stub_request(:get, "http://store.tsutaya.co.jp/item/rental_cd/#{id}.html?storeId=#{arg}")
+              .to_return(status: 200, body: open(fixture_path("item_stock_unavailable.html")).read)
+          end
+
+          it "should return '-'" do
+            expect(subject).to eq "-"
+          end
         end
       end
     end
