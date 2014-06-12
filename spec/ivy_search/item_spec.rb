@@ -2,8 +2,12 @@ require "spec_helper"
 
 module IvySearch
   describe Item do
+    let(:item) do
+      described_class.new(id: id, title: title, artist: artist, genres: genres)
+    end
+
     let(:id) do
-      "id"
+      "123456789"
     end
 
     let(:title) do
@@ -23,7 +27,7 @@ module IvySearch
     end
 
     describe "#initialize" do
-      subject(:item) do
+      subject(:init) do
         described_class.new(args)
       end
 
@@ -32,7 +36,7 @@ module IvySearch
           nil
         end
 
-        it { expect(item).to be_a described_class }
+        it { expect(init).to be_a described_class }
       end
 
       context "when some arguments are given" do
@@ -43,7 +47,38 @@ module IvySearch
           }
         end
 
-        it { expect(item).to be_a described_class }
+        it { expect(init).to be_a described_class }
+      end
+    end
+
+    describe "#check_stock" do
+      subject(:check) do
+        item.check_stock(arg)
+      end
+
+      context "when nil is given" do
+        let(:arg) do
+          nil
+        end
+
+        it "should raise ArgumentError" do
+          expect { subject }.to raise_error ArgumentError
+        end
+      end
+
+      context "when shop id is given" do
+        let(:arg) do
+          2234
+        end
+
+        before do
+          stub_request(:get, "http://store.tsutaya.co.jp/item/rental_cd/#{id}.html?storeId=2234")
+            .to_return(status: 200, body: open(fixture_path("item_stock_notfound.html")).read)
+        end
+
+        it "should return the stock status in specified shop exists" do
+          expect(subject).to eq "-"
+        end
       end
     end
 
